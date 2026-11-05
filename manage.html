@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Department Updates | Projects in Motion prototype</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="ribbon"><div class="wrap">
+  <span><strong>Prototype: demo only.</strong> Changes save in this browser only and nobody else sees them. In production, departments sign in with their Town Microsoft 365 account.</span>
+  <a href="index.html">Back to public view</a>
+</div></div>
+
+<header class="masthead"><div class="wrap">
+  <p class="eyebrow">Town of Middletown, Rhode Island</p>
+  <h1>Department Updates</h1>
+  <p class="lede">Pick your department, choose a project, and update its status, progress and budget. Every field departments own is on one form.</p>
+  <nav class="views" aria-label="Views">
+    <a href="index.html">Public view</a>
+    <a href="manage.html" aria-current="page">Department updates</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <div class="manage">
+    <aside class="panel" aria-labelledby="pick-h">
+      <h2 id="pick-h">Your projects</h2>
+      <label class="field" for="who">Department (demo sign-in)
+        <select id="who"></select>
+      </label>
+      <ul class="plist" id="plist"></ul>
+      <button class="btn secondary" id="new" type="button">Start a new project</button>
+      <div id="resetbox">
+        <button class="btn quiet" id="reset" type="button">Reset demo changes</button>
+      </div>
+    </aside>
+
+    <section class="panel" aria-labelledby="form-h">
+      <h2 id="form-h">Choose a project to update</h2>
+      <form class="editor" id="editor" novalidate hidden>
+        <label class="field full" for="f-name">Project name
+          <input id="f-name" name="name" required maxlength="160">
+        </label>
+        <label class="field" for="f-cip">Capital Improvement Program (CIP) reference number
+          <input id="f-cip" name="cipNumber" placeholder="###-####-###" inputmode="numeric" pattern="\d{3}-\d{4}-\d{3}">
+          <span class="hint">Format ###-####-###. Leave blank if not in the CIP.</span>
+        </label>
+        <label class="field" for="f-dept">Department
+          <select id="f-dept" name="department"></select>
+        </label>
+
+        <fieldset>
+          <legend>Status and schedule</legend>
+          <label class="field" for="f-status">Project status
+            <select id="f-status" name="projectStatus"></select>
+          </label>
+          <label class="field" for="f-pct">Percent complete
+            <input id="f-pct" name="percentComplete" type="number" min="0" max="100" step="1" placeholder="0 to 100">
+          </label>
+          <label class="field" for="f-pub">Public page
+            <span class="check"><input id="f-pub" name="published" type="checkbox"> Show on public page</span>
+          </label>
+          <label class="field" for="f-start">Start date
+            <input id="f-start" name="startDate" type="date" required>
+          </label>
+          <label class="field" for="f-end">End date
+            <input id="f-end" name="endDate" type="date">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Budget</legend>
+          <label class="field" for="f-bstat">Budget status
+            <select id="f-bstat" name="budgetStatus"></select>
+          </label>
+          <label class="field" for="f-orig">Original budget ($)
+            <input id="f-orig" name="originalBudget" type="number" min="0" step="1" inputmode="decimal">
+          </label>
+          <label class="field" for="f-spend">Current spend ($)
+            <input id="f-spend" name="currentSpend" type="number" min="0" step="1" inputmode="decimal">
+          </label>
+          <label class="field" for="f-final">Final cost ($)
+            <input id="f-final" name="finalCost" type="number" min="0" step="1" inputmode="decimal">
+            <span class="hint">Available once status is Completed.</span>
+          </label>
+        </fieldset>
+
+        <label class="field full" for="f-desc">Project description
+          <textarea id="f-desc" name="description" required></textarea>
+        </label>
+        <label class="field full" for="f-narr">Latest update
+          <textarea id="f-narr" name="narrative" required></textarea>
+          <span class="hint">What changed since the last update. Residents see this first.</span>
+        </label>
+        <label class="field full" for="f-cont">Contingencies (optional)
+          <textarea id="f-cont" name="contingencies"></textarea>
+        </label>
+        <label class="field full" for="f-url">More information link (optional)
+          <input id="f-url" name="moreInfoUrl" type="url" placeholder="https://">
+        </label>
+
+        <p class="error full" id="errors" role="alert" hidden></p>
+        <div class="actions">
+          <button class="btn" type="submit">Save update</button>
+          <a class="btn secondary" href="index.html" style="text-decoration:none">View public page</a>
+          <span class="toast" id="toast" role="status"></span>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>Town of Middletown · 350 East Main Road · Middletown, RI 02842</span>
+  <span>Prototype built for review by Town IT</span>
+</div></footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/manage.js"></script>
+</body>
+</html>
