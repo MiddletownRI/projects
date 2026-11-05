@@ -8,15 +8,18 @@
   function populate() {
     const depts = [...new Set(all.map(p => p.department))].sort();
     els.dept.insertAdjacentHTML("beforeend", depts.map(d => `<option>${M.esc(d)}</option>`).join(""));
-    els.status.insertAdjacentHTML("beforeend", M.PROJECT_STATUSES.map(s => `<option>${s}</option>`).join(""));
+    els.status.insertAdjacentHTML("beforeend",
+      `<optgroup label="Project status">${M.PROJECT_STATUSES.map(s => `<option value="p:${s}">${s}</option>`).join("")}</optgroup>` +
+      `<optgroup label="Budget">${M.BUDGET_STATUSES.map(s => `<option value="b:${s}">${s}</option>`).join("")}</optgroup>`);
   }
 
   function visible() {
     const q = els.q.value.trim().toLowerCase();
-    const d = els.dept.value, s = els.status.value, incClosed = els.closed.checked || M.CLOSED.has(s);
+    const d = els.dept.value, kind = els.status.value.slice(0, 2), s = els.status.value.slice(2);
+    const incClosed = els.closed.checked || (kind === "p:" && M.CLOSED.has(s));
     let list = all.filter(p => p.published !== false)
       .filter(p => !d || p.department === d)
-      .filter(p => !s || p.projectStatus === s)
+      .filter(p => !s || (kind === "b:" ? p.budgetStatus === s : p.projectStatus === s))
       .filter(p => incClosed || !M.CLOSED.has(p.projectStatus))
       .filter(p => !q || [p.name, p.description, p.narrative, p.department, p.cipNumber].join(" ").toLowerCase().includes(q));
     const by = els.sort.value;
