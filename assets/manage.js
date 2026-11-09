@@ -22,7 +22,8 @@
       if (el.type === "checkbox") el.checked = p[el.name] !== false;
       else el.value = p[el.name] ?? "";
     }
-    syncFinal();
+    $("f-cip").value = M.formatCip($("f-cip").value);
+    syncFinal(); syncBudget();
     renderList();
     $("f-name").focus();
   }
@@ -31,6 +32,7 @@
     const done = $("f-status").value === "Completed";
     $("f-final").disabled = !done;
     if (!done) $("f-final").value = "";
+    syncBudget();
   }
 
   function validate(rec) {
@@ -56,7 +58,7 @@
       name: txt("name"), cipNumber: txt("cipNumber") || null, department: form.elements.department.value,
       projectStatus: form.elements.projectStatus.value, percentComplete: num("percentComplete"),
       published: form.elements.published.checked, startDate: txt("startDate") || null, endDate: txt("endDate") || null,
-      budgetStatus: form.elements.budgetStatus.value, originalBudget: num("originalBudget"),
+      budgetStatus: M.budgetStatusFor(num("originalBudget"), num("currentSpend"), num("finalCost"), form.elements.projectStatus.value), originalBudget: num("originalBudget"),
       currentSpend: num("currentSpend"), finalCost: num("finalCost"),
       description: txt("description"), narrative: txt("narrative"),
       contingencies: txt("contingencies") || null, moreInfoUrl: txt("moreInfoUrl") || null,
@@ -72,9 +74,13 @@
     if (rec.department !== who.value) who.value = rec.department;
     $("form-h").textContent = "Update: " + rec.name;
     renderList();
-    toast.textContent = ok ? "Saved. Open the public page to see it." : "Saved for this visit only. This browser blocks storage, so it won't survive a refresh.";
+    toast.textContent = !ok ? "Saved for this visit only. This browser blocks storage, so it won't survive a refresh."
+      : rec.published ? "Saved. Open the public page to see it."
+      : "Saved. This project is hidden from the public page until Show on public page is checked.";
   });
 
+  const syncBudget = M.wireEditor({ cip: $("f-cip"), budget: $("f-orig"), contract: $("f-spend"), final: $("f-final"),
+    status: $("f-status"), bstat: $("f-bstat"), printBtn: $("print-form") });
   $("f-status").addEventListener("input", syncFinal);
   who.addEventListener("input", () => { current = null; form.hidden = true; $("form-h").textContent = "Choose a project to update"; renderList(); });
   plist.addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) fill(all.find(p => p.id === b.dataset.id)); });

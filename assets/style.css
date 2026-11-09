@@ -99,7 +99,7 @@ main { padding-block: 20px 48px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
 .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .badge .k { font-weight: 500; opacity: .8; }
-.s-good { color: var(--good); background: var(--good-bg); }
+.s-good { color: var(--harbor); background: var(--tide); } /* no green on status badges (administration review) */
 .s-warn { color: var(--warn); background: var(--warn-bg); }
 .s-bad  { color: var(--bad);  background: var(--bad-bg); }
 .s-info { color: var(--info); background: var(--info-bg); }
@@ -161,7 +161,7 @@ form.editor legend { font-weight: 700; padding: 0 6px; }
 #report { display: none; }
 @media print {
   body { background: #fff; color: #000; }
-  .ribbon, header.masthead, .tools, main, footer.site, dialog { display: none !important; }
+  .public-page .ribbon, .public-page header.masthead, .public-page .tools, .public-page main, .public-page footer.site, .public-page dialog { display: none !important; }
   #report { display: block; }
   .rpage { page-break-after: always; break-after: page; padding: 8px 4px; font-size: 12pt; }
   .rpage:last-child { page-break-after: auto; }
@@ -172,4 +172,23 @@ form.editor legend { font-weight: 700; padding: 0 6px; }
   .rpage th { width: 32%; background: #f1f4f6; }
   .rpage h3 { font-size: 11pt; text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 4px; }
   .rpage p { margin: 0; white-space: pre-line; }
+}
+
+.print-text { display: none; }
+/* Printing an update page: just the project form, every field readable */
+@media print {
+  .editor-page { font-size: 11pt; }
+  .editor-page .ribbon, .editor-page nav.views, .editor-page aside, .editor-page #signin, .editor-page .actions,
+  .editor-page footer.site, .editor-page #bstat-hint, .editor-page .hint { display: none !important; }
+  .editor-page header.masthead { background: none; color: #000; border-bottom: 2px solid #1d4e6b; }
+  .editor-page header.masthead .wrap { padding-block: 0 8px; }
+  .editor-page .lede { display: none; }
+  .editor-page .manage { display: block; }
+  .editor-page .panel { border: 0; padding: 0; }
+  .editor-page form.editor, .editor-page form.editor fieldset { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editor-page input, .editor-page select, .editor-page textarea { border: 1px solid #999; color: #000; background: #fff; -webkit-appearance: none; appearance: none; }
+  .editor-page textarea { display: none !important; }
+  .editor-page ::placeholder { color: transparent; }
+  .editor-page .print-text { display: block; border: 1px solid #999; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; color: #000; font-weight: 400; font-size: 11pt; }
+  .editor-page fieldset { break-inside: avoid; }
 }

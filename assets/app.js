@@ -13,11 +13,14 @@
       `<optgroup label="Budget">${M.BUDGET_STATUSES.map(s => `<option value="b:${s}">${s}</option>`).join("")}</optgroup>`);
   }
 
+  // public = marked for the public page and not a completed project more than a year past its end date
+  const shown = () => all.filter(p => p.published !== false && !M.agedOut(p.projectStatus, p.endDate));
+
   function visible() {
     const q = els.q.value.trim().toLowerCase();
     const d = els.dept.value, kind = els.status.value.slice(0, 2), s = els.status.value.slice(2);
     const incClosed = els.closed.checked || (kind === "p:" && M.CLOSED.has(s));
-    let list = all.filter(p => p.published !== false)
+    let list = shown()
       .filter(p => !d || p.department === d)
       .filter(p => !s || (kind === "b:" ? p.budgetStatus === s : p.projectStatus === s))
       .filter(p => incClosed || !M.CLOSED.has(p.projectStatus))
@@ -31,7 +34,7 @@
   }
 
   function renderSummary() {
-    const pub = all.filter(p => p.published !== false);
+    const pub = shown();
     const active = pub.filter(p => !M.CLOSED.has(p.projectStatus));
     const n = s => active.filter(p => p.projectStatus === s).length;
     const parts = [`<span><strong>${active.length}</strong> active projects</span>`];
@@ -55,7 +58,7 @@
 
   function render() {
     const list = visible();
-    els.count.textContent = `Showing ${list.length} of ${all.filter(p => p.published !== false).length} projects`;
+    els.count.textContent = `Showing ${list.length} of ${shown().length} projects`;
     els.grid.innerHTML = list.length ? list.map(card).join("")
       : `<div class="empty-state">No projects match these filters. Clear the search or choose another department or status.</div>`;
   }
@@ -75,8 +78,8 @@
       <tr><th scope="row">Start date</th><td>${M.fmtDate(p.startDate)}</td></tr>
       <tr><th scope="row">End date</th><td>${M.fmtDate(p.endDate)}</td></tr>
       <tr><th scope="row">Budget status</th><td>${M.esc(p.budgetStatus)}</td></tr>
-      ${moneyRow("Original budget", p.originalBudget)}
-      ${moneyRow("Current spend", p.currentSpend)}
+      ${moneyRow("Budget", p.originalBudget)}
+      ${moneyRow("Contract amount", p.currentSpend)}
       ${p.projectStatus === "Completed" ? moneyRow("Final cost", p.finalCost) : ""}
       <tr><th scope="row">Last updated</th><td>${M.fmtDate(p.lastUpdated)}</td></tr>
     </tbody></table>`;

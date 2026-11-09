@@ -96,13 +96,15 @@
       else if (DATES.has(el.name)) el.value = toInput(p[el.name]);
       else el.value = p[el.name] ?? "";
     }
-    syncFinal(); renderList(); $("f-name").focus();
+    $("f-cip").value = M.formatCip($("f-cip").value);
+    syncFinal(); syncBudget(); renderList(); $("f-name").focus();
   }
 
   function syncFinal() {
     const done = $("f-status").value === "Completed";
     $("f-final").disabled = !done;
     if (!done) $("f-final").value = "";
+    syncBudget();
   }
 
   function readForm() {
@@ -136,6 +138,7 @@
   form.addEventListener("submit", async e => {
     e.preventDefault();
     const rec = readForm();
+    rec.BudgetStatus = M.budgetStatusFor(rec.OriginalBudget, rec.CurrentSpend, rec.FinalCost, rec.ProjectStatus);
     const errs = validate(rec);
     if (errs.length) { showErrors(errs); toast.textContent = ""; return; }
     showErrors([]);
@@ -155,7 +158,8 @@
       whoDept.value = rec.Department || whoDept.value;
       const fresh = items.filter(i => i.Title === keepTitle).sort((a, b) => b.modified.localeCompare(a.modified))[0];
       if (fresh) fill(fresh); else renderList();
-      toast.textContent = "Saved. The public page picks this up at its next refresh.";
+      toast.textContent = rec.ShowOnPublic ? "Saved. The public page picks this up at its next refresh."
+        : "Saved. This project is hidden from the public page until Show on public page is checked.";
     } catch (err) {
       toast.textContent = "";
       showErrors([err.status === 403
@@ -176,6 +180,8 @@
     });
   })();
 
+  const syncBudget = M.wireEditor({ cip: $("f-cip"), budget: $("f-orig"), contract: $("f-spend"), final: $("f-final"),
+    status: $("f-status"), bstat: $("f-bstat"), printBtn: $("print-form") });
   $("f-status").addEventListener("input", syncFinal);
   whoDept.addEventListener("input", () => { current = null; form.hidden = true; $("form-h").textContent = "Choose a project to update"; $("last-edit").textContent = ""; renderList(); });
   plist.addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) fill(items.find(p => p.id === b.dataset.id)); });

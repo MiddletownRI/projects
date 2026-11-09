@@ -63,6 +63,54 @@ window.MTP = (() => {
     try { const url = new URL(u); return (url.protocol === "https:" || url.protocol === "http:") ? url.href : null; } catch { return null; }
   }
 
+
+  // Budget status is a formula, not a choice (administration review, Nov 2026).
+  // cost = final cost once Completed, otherwise the contract amount.
+  function budgetStatusFor(budget, contract, final, status) {
+    const n = v => (v === null || v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
+    const b = n(budget), done = status === "Completed", f = n(final);
+    const cost = done && f !== null ? f : n(contract);
+    if (b === null || b <= 0 || cost === null) return "Pending/TBD";
+    if (cost > b) return "Over budget";
+    if (done && f !== null && f < b) return "Under budget";
+    return "Within budget";
+  }
+
+  // CIP reference number: digits only, dashes inserted as ###-####-###
+  function formatCip(v) {
+    const d = String(v || "").replace(/\D/g, "").slice(0, 10);
+    return d.length > 7 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
+  }
+
+  // Completed projects drop off the public page a year after their end date
+  function agedOut(status, endDate, now = new Date()) {
+    if (status !== "Completed" || !endDate) return false;
+    const end = new Date(String(endDate).length === 10 ? endDate + "T12:00:00Z" : endDate);
+    if (isNaN(end)) return false;
+    const cutoff = new Date(now); cutoff.setFullYear(cutoff.getFullYear() - 1);
+    return end < cutoff;
+  }
+
+  // Shared bits for both update pages: CIP dashes, budget formula, print
+  function wireEditor({ cip, budget, contract, final, status, bstat, printBtn }) {
+    cip.addEventListener("input", () => {
+      const atEnd = cip.selectionStart === cip.value.length;
+      cip.value = formatCip(cip.value);
+      if (atEnd) cip.setSelectionRange(cip.value.length, cip.value.length);
+    });
+    const sync = () => { bstat.value = budgetStatusFor(budget.value, contract.value, final.value, status.value); };
+    for (const el of [budget, contract, final, status]) el.addEventListener("input", sync);
+    // Text boxes don't split across printed pages, so print a plain copy of each one instead
+    const mirror = () => document.querySelectorAll("form.editor textarea").forEach(t => {
+      let m = t.nextElementSibling;
+      if (!m || !m.classList.contains("print-text")) { m = document.createElement("div"); m.className = "print-text"; t.after(m); }
+      m.textContent = t.value || "—";
+    });
+    window.addEventListener("beforeprint", mirror);
+    printBtn.addEventListener("click", () => { mirror(); window.print(); });
+    return sync;
+  }
+
   function statusBadge(s) { return `<span class="badge ${statusTone[s] || "s-none"}"><span class="k">Status:</span> ${esc(s || "Not set")}</span>`; }
   function budgetBadge(s) { return `<span class="badge ${budgetTone[s] || "s-none"}"><span class="k">Budget:</span> ${esc(s || "Pending/TBD")}</span>`; }
   function progress(p) {
@@ -73,5 +121,6 @@ window.MTP = (() => {
   }
 
   return { PROJECT_STATUSES, BUDGET_STATUSES, DEPARTMENTS, CLOSED, load, saveProject, resetEdits, hasEdits,
-           fmtDate, fmtMoney, esc, safeUrl, statusBadge, budgetBadge, progress };
+           fmtDate, fmtMoney, esc, safeUrl, statusBadge, budgetBadge, progress,
+           budgetStatusFor, formatCip, agedOut, wireEditor };
 })();

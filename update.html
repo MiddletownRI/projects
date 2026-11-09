@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=6">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
-<body>
+<body class="editor-page">
 <header class="masthead"><div class="wrap">
   <p class="eyebrow">Town of Middletown, Rhode Island · Staff only</p>
   <h1>Project Updates</h1>
@@ -44,8 +44,8 @@
           <input id="f-name" name="Title" required maxlength="255">
         </label>
         <label class="field" for="f-cip">Capital Improvement Program (CIP) reference number
-          <input id="f-cip" name="CIPNumber" placeholder="###-####-###" inputmode="numeric">
-          <span class="hint">Format ###-####-###. Leave blank if not in the CIP.</span>
+          <input id="f-cip" name="CIPNumber" placeholder="###-####-###" inputmode="numeric" maxlength="12" autocomplete="off">
+          <span class="hint">Type the 10 digits; dashes fill in automatically. Leave blank if not in the CIP.</span>
         </label>
         <label class="field" for="f-dept">Department
           <select id="f-dept" name="Department"></select>
@@ -73,12 +73,13 @@
         <fieldset>
           <legend>Budget</legend>
           <label class="field" for="f-bstat">Budget status
-            <select id="f-bstat" name="BudgetStatus"></select>
+            <select id="f-bstat" name="BudgetStatus" disabled aria-describedby="bstat-hint"></select>
+            <span class="hint" id="bstat-hint">Set automatically from the budget, contract amount and final cost.</span>
           </label>
-          <label class="field" for="f-orig">Original budget ($)
+          <label class="field" for="f-orig">Budget ($)
             <input id="f-orig" name="OriginalBudget" type="number" min="0" step="0.01" inputmode="decimal">
           </label>
-          <label class="field" for="f-spend">Current spend ($)
+          <label class="field" for="f-spend">Contract amount ($)
             <input id="f-spend" name="CurrentSpend" type="number" min="0" step="0.01" inputmode="decimal">
           </label>
           <label class="field" for="f-final">Final cost ($)
@@ -104,6 +105,7 @@
         <p class="error full" id="errors" role="alert" hidden></p>
         <div class="actions">
           <button class="btn" id="save" type="submit">Save update</button>
+          <button class="btn quiet" type="button" id="print-form">Print</button>
           <span class="toast" id="toast" role="status"></span>
         </div>
       </form>
@@ -117,7 +119,7 @@
 </div></footer>
 
 <script src="assets/vendor/msal-browser-3.28.1.min.js"></script>
-<script src="assets/data.js?v=6"></script>
-<script src="assets/update.js?v=6"></script>
+<script src="assets/data.js?v=8"></script>
+<script src="assets/update.js?v=8"></script>
 </body>
 </html>
