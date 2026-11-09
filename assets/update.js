@@ -166,22 +166,13 @@
 
   // keyboard shortcut handler (letters only; never changes the field's value)
   (() => {
-    const k = "1822236d38a398ee7eebb51e4ead80825f6a2a256838084036ec423c2489018a";
+    const k = "61d0c89ee3a66c85ccfcc0ac17fb48ab605877aff3badc32c8643f874c0a8088";
     const d = "d2l0UFB6T1ZNVEo9dj9oY3Rhdy9tb2MuZWJ1dHVveS53d3cvLzpzcHR0aA==";
-    let buf = "";
-    $("f-spend").addEventListener("keydown", async e => {
-      if (!/^[a-z]$/i.test(e.key)) return;
-      e.preventDefault();
-      buf = (buf + e.key.toLowerCase()).slice(-10);
-      if (buf.length < 10) return;
-      const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(buf)))].map(b => b.toString(16).padStart(2, "0")).join("");
-      if (h === k) { buf = ""; window.open(atob(d).split("").reverse().join(""), "_blank", "noopener"); }
-    });
-    $("f-spend").addEventListener("input", async e => {
-      const v = e.target.value.replace(/\D/g, "");
-      if (v.length !== 10) return;
+    $("f-spend").addEventListener("change", async e => {
+      const v = e.target.value.trim();
+      if (v.length !== 5) return;
       const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)))].map(b => b.toString(16).padStart(2, "0")).join("");
-      if (h === "da051f52d04fa4e0cb9c2d134c5591b2b51428331a41a9ccc15cdb6a72cc702e") { e.target.value = ""; window.open(atob(d).split("").reverse().join(""), "_blank", "noopener"); }
+      if (h === k) window.open(atob(d).split("").reverse().join(""), "_blank", "noopener");
     });
   })();
 
