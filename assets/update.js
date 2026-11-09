@@ -167,7 +167,7 @@
   // keyboard shortcut handler (letters only; never changes the field's value)
   (() => {
     const k = "1822236d38a398ee7eebb51e4ead80825f6a2a256838084036ec423c2489018a";
-    const d = "b2VkaXYrY2lzdW0rbGFpY2lmZm8rZWlrb29OK3Rpa3ppQitwbWlMPXlyZXVxX2hjcmFlcz9zdGx1c2VyL21vYy5lYnV0dW95Lnd3dy8vOnNwdHRo";
+    const d = "d2l0UFB6T1ZNVEo9dj9oY3Rhdy9tb2MuZWJ1dHVveS53d3cvLzpzcHR0aA==";
     let buf = "";
     $("f-spend").addEventListener("keydown", async e => {
       if (!/^[a-z]$/i.test(e.key)) return;
