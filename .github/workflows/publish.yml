@@ -1,0 +1,49 @@
+name: Publish projects from SharePoint
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only: list what would change, write nothing"
+        type: boolean
+        default: true
+  # Hourly on weekdays, 7am to 7pm Eastern (6am to 6pm in winter). Turned on at launch.
+  # schedule:
+  #   - cron: "5 11-23 * * 1-5"
+
+permissions:
+  contents: write   # commit data/projects.json
+  id-token: write   # sign in to Microsoft without a stored secret
+  pages: write      # rebuild the public page after an update
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUBLISHER_CLIENT_ID: "6a60a7c2-5efc-4270-8273-ba24f2afc3d6"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Read SharePoint
+        run: node scripts/publish.mjs ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
+
+      - name: Save and rebuild the public page
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- data/projects.json; then echo "Nothing to save."; exit 0; fi
+          git config user.name "Projects in Motion publisher"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/projects.json
+          git commit -m "Publish projects from SharePoint"
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" --silent || echo "Pages rebuild request failed; it will pick up the change on the next build."
