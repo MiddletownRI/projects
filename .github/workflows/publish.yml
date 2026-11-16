@@ -7,9 +7,9 @@ on:
         description: "Preview only: list what would change, write nothing"
         type: boolean
         default: true
-  # Hourly on weekdays, 7am to 7pm Eastern (6am to 6pm in winter). Turned on at launch.
-  # schedule:
-  #   - cron: "5 11-23 * * 1-5"
+  # Hourly on weekdays, 7am to 7pm Eastern (6am to 6pm in winter). Live since Nov 16, 2026.
+  schedule:
+    - cron: "5 11-23 * * 1-5"
 
 permissions:
   contents: write   # commit data/projects.json
