@@ -106,7 +106,7 @@
   opts($("f-bstat"), M.BUDGET_STATUSES);
   opts($("f-dept"), M.DEPARTMENTS);
 
-  M.load().then(list => {
+  M.load({ withEdits: true }).then(list => {
     all = list;
     const depts = [...new Set([...M.DEPARTMENTS, ...all.map(p => p.department)])].sort();
     opts(who, depts);

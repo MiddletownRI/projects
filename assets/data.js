@@ -29,10 +29,12 @@ window.MTP = (() => {
     try { localStorage.setItem(EDITS_KEY, JSON.stringify(edits)); return true; } catch { return false; }
   }
 
-  async function load() {
+  // Public page: published data only. Demo page passes { withEdits: true } to layer its browser-only edits on top.
+  async function load({ withEdits = false } = {}) {
     const res = await fetch("data/projects.json", { cache: "no-store" });
     if (!res.ok) throw new Error("Could not load project data (" + res.status + ")");
     const base = (await res.json()).projects;
+    if (!withEdits) return base;
     const edits = readEdits();
     const byId = new Map(base.map(p => [p.id, p]));
     for (const [id, rec] of Object.entries(edits)) byId.set(id, { ...(byId.get(id) || {}), ...rec });
