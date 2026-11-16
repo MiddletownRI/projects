@@ -57,7 +57,7 @@ async function graph(token, path) {
 // Dates are stored at noon UTC; give the Eastern calendar date
 const ymd = v => v ? new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date(v)) : null;
 const num = v => (v === null || v === undefined || v === "") ? null : Number(v);
-const text = v => (typeof v === "string" && v.trim()) ? v.trim() : null;
+const text = v => (typeof v === "string" && v.trim()) ? v.replace(/\r\n?/g, "\n").replace(/[ \t]+\n/g, "\n").trim() : null;
 
 function toPublic(item) {
   const f = item.fields;
@@ -102,15 +102,21 @@ const keepalive = (Date.now() - lastChecked) / 864e5 > KEEPALIVE_DAYS;
 
 console.log(`SharePoint rows: ${items.length}. Public: ${projects.length}. Changed: ${changed}.`);
 if (DRY) {
+  const spacing = [];
   const before = new Map((old.projects || []).map(p => [p.name, p]));
   for (const p of projects) {
     const o = before.get(p.name);
     if (!o) { console.log(`  new on public page: ${p.name}`); continue; }
-    const diffs = Object.keys(p).filter(k => !["id", "lastUpdated"].includes(k) && JSON.stringify(p[k]) !== JSON.stringify(o[k]));
-    if (diffs.length) console.log(`  ${p.name}: ${diffs.map(k => `${k} ${JSON.stringify(o[k])} -> ${JSON.stringify(p[k])}`).join("; ").slice(0, 400)}`);
+    const norm = v => typeof v === "string" ? v.replace(/\s+/g, " ").trim() : JSON.stringify(v);
+    const short = v => { const t = typeof v === "string" ? v.replace(/\s+/g, " ") : JSON.stringify(v); return t && t.length > 70 ? t.slice(0, 67) + "..." : t; };
+    const diffs = Object.keys(p).filter(k => !["id", "lastUpdated"].includes(k) && norm(p[k]) !== norm(o[k]));
+    const ws = Object.keys(p).filter(k => !["id", "lastUpdated"].includes(k) && JSON.stringify(p[k]) !== JSON.stringify(o[k]) && !diffs.includes(k));
+    if (diffs.length) console.log(`  ${p.name}:\n${diffs.map(k => `      ${k}: ${short(o[k])}  ->  ${short(p[k])}`).join("\n")}`);
+    if (ws.length) spacing.push(p.name);
     before.delete(p.name);
   }
   for (const n of before.keys()) console.log(`  leaves public page: ${n}`);
+  if (spacing.length) console.log(`  Spacing or line breaks only (no visible change): ${spacing.join(", ")}`);
   console.log("Dry run: nothing written.");
   process.exit(0);
 }
